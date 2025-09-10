@@ -82,6 +82,14 @@ else
   source $SCRIPT_DIR/$PYVENV/bin/activate
 fi
 
+
+if which vewd-builds-auth &> "/dev/null"; then
+  echo "vewd-builds-auth is available"
+else
+  echo "vewd-builds-auth is required. Please install depot_tools and add them to the path"
+  exit 1
+fi
+
 function cleanup() {
   rm -rf "$TEMP_DIR"
   echo "[rm] $TEMP_DIR"
