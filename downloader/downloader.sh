@@ -87,9 +87,10 @@ function cleanup() {
   echo "[rm] $TEMP_DIR"
 }
 
-function print_fw() {
-  echo "[setup] Print device state before flashing"
+function setup() {
+  echo "[setup] Prepare device"
   ssh "root@$DEVICE_IP" "cat /etc/os-release"
+  ssh "root@$DEVICE_IP" "rm -rf $EXEC_PATH/*.pkg $EXEC_PATH/sw-updater-package-install*"
   echo "[setup] Done"
 }
 
@@ -161,7 +162,7 @@ function reboot_device() {
 
 trap cleanup EXIT TERM INT
 
-print_fw
+setup
 if [[ -z "$FIRMWARE_TAR" ]]; then
   download_package
 else
