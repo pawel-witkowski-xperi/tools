@@ -64,10 +64,18 @@ if [[ -z "$DEVICE_IP" ]]; then
   exit 1
 fi
 
+
+
 SCRIPT_DIR=$(dirname $0)
 PYVENV=".venv"
 ARTIFACTORY="https://repo-vip.tivo.com/artifactory/api/pypi/pypi/simple"
 if [[ ! -d "$SCRIPT_DIR/$PYVENV"  ]]; then
+  if dpkg -s "python3-venv" &> "/dev/null"; then
+    echo "python3-venv is available"
+  else
+    echo "python3-venv is required. Please run 'sudo apt install python3-venv'"
+    exit 1
+  fi
   python3 -m venv $PYVENV
   source $SCRIPT_DIR/$PYVENV/bin/activate
   pip3 install fget --index=$ARTIFACTORY
