@@ -5,10 +5,9 @@ set -e
 function show_help() {
   echo "Tool to download and install or simply install given firmware on a device. Usage: "
   echo "--device-ip         IP of a device under flash, e.g. --device-ip=192.168.0.1"
-  echo "--firmware-tar     Skip download and simply install the firmware defined by this variable,
+  echo "--firmware-tar      Skip download and simply install the firmware defined by this variable.
                             e.g. --firmware-tar=/mnt/packages/tivo-os-image-18.847.0-ng-dev-aml-t962d4-cvte-xperi.tar.gz"
-  echo "--firmware-url      URL to be downloaded and installed, if it's specified then
-                            --firmware-tar param is omitted, 
+  echo "--firmware-url      URL to be downloaded and installed,
                             e.g. --firmware-url=https://builds.corp.vewd.com/yocto/tv-master/2025-09-08-18.847.0/xperi/cvte/aml-t962d4-dev/tivo-os-image-18.847.0-ng-dev-aml-t962d4-cvte-xperi.tar.gz"
   echo "--branch            If --firmware-url is not specified, this is the branch to
                             be used by the fget downloader, e.g. --branch=tv-master"
@@ -165,6 +164,8 @@ trap cleanup EXIT TERM INT
 print_fw
 if [[ -z "$FIRMWARE_TAR" ]]; then
   download_package
+else
+  echo "--firmware-tar defined, skipped download"
 fi
 untar_package
 upload_files
