@@ -91,8 +91,25 @@ else
 fi
 
 function cleanup() {
+  echo "[rm] About to remove $TEMP_DIR"
   rm -rf "$TEMP_DIR"
   echo "[rm] $TEMP_DIR"
+}
+
+function wait_until_online() {
+  echo "Waiting until $DEVICE_IP is online"
+  local interval=5
+  local counter=15
+  until ping -c 1 -W 1 "$DEVICE_IP" > /dev/null 2>&1; do
+      if [[ $counter -le 0 ]]; then
+        echo "Device $DEVICE_IP not online after $(interval*counter)s..."
+	exit 1
+      fi
+      counter=counter-1
+      echo "$DEVICE_IP still offline, retrying in $interval seconds..."
+      sleep "$interval"
+  done
+  echo "$DEVICE_IP back online"
 }
 
 function setup() {
@@ -138,6 +155,15 @@ function upload_files() {
   echo "[upload] Done"
 }
 
+function before_flash() {
+  echo "[before_flash] Disabling auto starting vam"
+  ssh "root@$DEVICE_IP" "/usr/bin/vewd-dev-options.sh recovery disable"
+  ssh "root@$DEVICE_IP" "/usr/bin/vewd-dev-options.sh vam disable"
+  sleep 5
+  wait_until_online
+  echo "[before_flash] Done"
+}
+
 function flash_device() {
   echo "[flash] Flashing $DEVICE_IP"
   ssh "root@$DEVICE_IP" "$EXEC_PATH/$SW_UPDATE_PACKAGE_INSTALL" "$EXEC_PATH/$SW_UPDATE_PKG"
@@ -178,6 +204,7 @@ else
 fi
 untar_package
 upload_files
+before_flash
 flash_device
 remove_temporary_files
 set_uenv
