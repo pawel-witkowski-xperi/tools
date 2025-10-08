@@ -105,7 +105,7 @@ function wait_until_online() {
         echo "Device $DEVICE_IP not online after $(interval*counter)s..."
 	exit 1
       fi
-      counter=counter-1
+      ((counter--))
       echo "$DEVICE_IP still offline, retrying in $interval seconds..."
       sleep "$interval"
   done
@@ -158,7 +158,10 @@ function upload_files() {
 function before_flash() {
   echo "[before_flash] Disabling auto starting vam"
   ssh "root@$DEVICE_IP" "/usr/bin/vewd-dev-options.sh recovery disable"
+  # Disabling vam triggers a reboot resulting with error code on ssh connection
+  set +e
   ssh "root@$DEVICE_IP" "/usr/bin/vewd-dev-options.sh vam disable"
+  set -e
   sleep 5
   wait_until_online
   echo "[before_flash] Done"
